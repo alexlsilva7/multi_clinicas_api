@@ -3,7 +3,7 @@
 -- Descrição: Cria todas as tabelas base do sistema multi-tenant
 
 -- =====================================================
--- 1. TABELA ENDERECOS (deve vir antes para ser referenciada)
+-- 1. TABELA ENDERECOS
 -- =====================================================
 CREATE TABLE enderecos (
     id BIGSERIAL PRIMARY KEY,
@@ -18,7 +18,7 @@ CREATE TABLE enderecos (
 );
 
 -- =====================================================
--- 2. TABELA CLINICAS (Tabela principal - Multi-tenant)
+-- 2. TABELA CLINICAS
 -- =====================================================
 CREATE TABLE clinicas (
     id BIGSERIAL PRIMARY KEY,
@@ -46,10 +46,8 @@ CREATE TABLE usuarios_admin (
     role VARCHAR(50) NOT NULL,
     endereco_id BIGINT,
     
-    CONSTRAINT fk_usuarios_clinic FOREIGN KEY (clinic_id) 
-        REFERENCES clinicas(id) ON DELETE CASCADE,
-    CONSTRAINT fk_usuarios_endereco FOREIGN KEY (endereco_id) 
-        REFERENCES enderecos(id) ON DELETE SET NULL,
+    CONSTRAINT fk_usuarios_clinic FOREIGN KEY (clinic_id) REFERENCES clinicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_usuarios_endereco FOREIGN KEY (endereco_id) REFERENCES enderecos(id) ON DELETE SET NULL,
     CONSTRAINT uk_usuarios_clinic_email UNIQUE (clinic_id, email)
 );
 
@@ -64,8 +62,7 @@ CREATE TABLE especialidades (
     clinic_id BIGINT NOT NULL,
     nome VARCHAR(255) NOT NULL,
     
-    CONSTRAINT fk_especialidades_clinic FOREIGN KEY (clinic_id) 
-        REFERENCES clinicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_especialidades_clinic FOREIGN KEY (clinic_id) REFERENCES clinicas(id) ON DELETE CASCADE,
     CONSTRAINT uk_especialidades_clinic_nome UNIQUE (clinic_id, nome)
 );
 
@@ -85,10 +82,8 @@ CREATE TABLE pacientes (
     senha_hash VARCHAR(255),
     endereco_id BIGINT,
     
-    CONSTRAINT fk_pacientes_clinic FOREIGN KEY (clinic_id) 
-        REFERENCES clinicas(id) ON DELETE CASCADE,
-    CONSTRAINT fk_pacientes_endereco FOREIGN KEY (endereco_id) 
-        REFERENCES enderecos(id) ON DELETE SET NULL,
+    CONSTRAINT fk_pacientes_clinic FOREIGN KEY (clinic_id) REFERENCES clinicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_pacientes_endereco FOREIGN KEY (endereco_id) REFERENCES enderecos(id) ON DELETE SET NULL,
     CONSTRAINT uk_pacientes_clinic_cpf UNIQUE (clinic_id, cpf)
 );
 
@@ -110,10 +105,8 @@ CREATE TABLE medicos (
     ativo BOOLEAN NOT NULL DEFAULT true,
     endereco_id BIGINT,
     
-    CONSTRAINT fk_medicos_clinic FOREIGN KEY (clinic_id) 
-        REFERENCES clinicas(id) ON DELETE CASCADE,
-    CONSTRAINT fk_medicos_endereco FOREIGN KEY (endereco_id) 
-        REFERENCES enderecos(id) ON DELETE SET NULL,
+    CONSTRAINT fk_medicos_clinic FOREIGN KEY (clinic_id) REFERENCES clinicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_medicos_endereco FOREIGN KEY (endereco_id) REFERENCES enderecos(id) ON DELETE SET NULL,
     CONSTRAINT uk_medicos_clinic_crm UNIQUE (clinic_id, crm)
 );
 
@@ -122,24 +115,22 @@ CREATE INDEX idx_medicos_crm ON medicos(crm);
 CREATE INDEX idx_medicos_ativo ON medicos(ativo);
 
 -- =====================================================
--- 6. TABELA MEDICO_ESPECIALIDADE (Many-to-Many)
+-- 7. TABELA MEDICO_ESPECIALIDADE
 -- =====================================================
 CREATE TABLE medico_especialidade (
     medico_id BIGINT NOT NULL,
     especialidades_id BIGINT NOT NULL,
     
     CONSTRAINT pk_medico_especialidade PRIMARY KEY (medico_id, especialidades_id),
-    CONSTRAINT fk_medico_especialidade_medico FOREIGN KEY (medico_id) 
-        REFERENCES medicos(id) ON DELETE CASCADE,
-    CONSTRAINT fk_medico_especialidade_especialidade FOREIGN KEY (especialidades_id) 
-        REFERENCES especialidades(id) ON DELETE CASCADE
+    CONSTRAINT fk_medico_especialidade_medico FOREIGN KEY (medico_id) REFERENCES medicos(id) ON DELETE CASCADE,
+    CONSTRAINT fk_medico_especialidade_especialidade FOREIGN KEY (especialidades_id) REFERENCES especialidades(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_medico_especialidade_medico ON medico_especialidade(medico_id);
 CREATE INDEX idx_medico_especialidade_especialidade ON medico_especialidade(especialidades_id);
 
 -- =====================================================
--- 7. TABELA GRADES_HORARIO
+-- 8. TABELA GRADES_HORARIO
 -- =====================================================
 CREATE TABLE grades_horario (
     id BIGSERIAL PRIMARY KEY,
@@ -149,15 +140,14 @@ CREATE TABLE grades_horario (
     hora_fim TIME NOT NULL,
     duracao_consulta INTEGER NOT NULL,
     
-    CONSTRAINT fk_grades_medico FOREIGN KEY (medico_id) 
-        REFERENCES medicos(id) ON DELETE CASCADE
+    CONSTRAINT fk_grades_medico FOREIGN KEY (medico_id) REFERENCES medicos(id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_grades_medico_id ON grades_horario(medico_id);
 CREATE INDEX idx_grades_dia_semana ON grades_horario(dia_semana);
 
 -- =====================================================
--- 8. TABELA AGENDAMENTOS
+-- 9. TABELA AGENDAMENTOS
 -- =====================================================
 CREATE TABLE agendamentos (
     id BIGSERIAL PRIMARY KEY,
@@ -171,12 +161,9 @@ CREATE TABLE agendamentos (
     observacoes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    CONSTRAINT fk_agendamentos_clinic FOREIGN KEY (clinic_id) 
-        REFERENCES clinicas(id) ON DELETE CASCADE,
-    CONSTRAINT fk_agendamentos_paciente FOREIGN KEY (paciente_id) 
-        REFERENCES pacientes(id) ON DELETE CASCADE,
-    CONSTRAINT fk_agendamentos_medico FOREIGN KEY (medico_id) 
-        REFERENCES medicos(id) ON DELETE CASCADE,
+    CONSTRAINT fk_agendamentos_clinic FOREIGN KEY (clinic_id) REFERENCES clinicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_agendamentos_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id) ON DELETE CASCADE,
+    CONSTRAINT fk_agendamentos_medico FOREIGN KEY (medico_id) REFERENCES medicos(id) ON DELETE CASCADE,
     CONSTRAINT uk_agendamentos_medico_data_hora UNIQUE (clinic_id, medico_id, data_consulta, hora_inicio)
 );
 
@@ -185,16 +172,3 @@ CREATE INDEX idx_agendamentos_paciente_id ON agendamentos(paciente_id);
 CREATE INDEX idx_agendamentos_medico_id ON agendamentos(medico_id);
 CREATE INDEX idx_agendamentos_data_consulta ON agendamentos(data_consulta);
 CREATE INDEX idx_agendamentos_status ON agendamentos(status);
-
--- =====================================================
--- COMENTÁRIOS DAS TABELAS
--- =====================================================
-COMMENT ON TABLE enderecos IS 'Tabela de endereços compartilhada entre usuários';
-COMMENT ON TABLE clinicas IS 'Tabela principal para multi-tenancy, cada registro representa uma clínica';
-COMMENT ON TABLE usuarios_admin IS 'Usuários administrativos do sistema (por clínica)';
-COMMENT ON TABLE especialidades IS 'Especialidades médicas disponíveis em cada clínica';
-COMMENT ON TABLE pacientes IS 'Pacientes cadastrados em cada clínica';
-COMMENT ON TABLE medicos IS 'Médicos vinculados a cada clínica';
-COMMENT ON TABLE medico_especialidade IS 'Relacionamento Many-to-Many entre médicos e especialidades';
-COMMENT ON TABLE grades_horario IS 'Grade de horários de atendimento dos médicos';
-COMMENT ON TABLE agendamentos IS 'Agendamentos de consultas';
