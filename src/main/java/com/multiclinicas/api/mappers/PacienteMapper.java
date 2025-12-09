@@ -40,6 +40,7 @@ public class PacienteMapper {
         paciente.setCpf(dto.cpf());
         paciente.setTelefone(dto.telefone());
         paciente.setTelefoneSecundario(dto.telefoneSecundario());
+        paciente.setSenhaHash(dto.senhaHash());
         paciente.setEndereco(enderecoMapper.toEntity(dto.endereco()));
 
         return paciente;

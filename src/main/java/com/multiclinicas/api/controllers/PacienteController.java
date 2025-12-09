@@ -8,6 +8,7 @@ import com.multiclinicas.api.models.Paciente;
 import com.multiclinicas.api.services.ClinicaService;
 import com.multiclinicas.api.services.PacienteService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,15 +45,9 @@ public class PacienteController {
     @PostMapping
     public ResponseEntity<PacienteDTO> createPaciente(
             @RequestHeader("X-Clinic-ID") Long clinicaId,
-            @RequestBody PacienteCreateDTO dto) {
+            @Valid @RequestBody PacienteCreateDTO dto) {
         Paciente paciente = pacienteMapper.toEntity(dto);
         paciente.setClinica(clinicaService.findById(clinicaId));
-
-        if (dto.senhaHash() != null) {
-            paciente.setSenhaHash(dto.senhaHash());
-        } else {
-            throw new IllegalArgumentException("Senha é obrigatória");
-        }
 
         Paciente salvo = pacienteService.create(paciente);
 
@@ -68,13 +63,9 @@ public class PacienteController {
     @PutMapping("/{id}")
     public ResponseEntity<PacienteDTO> updatePaciente(
             @PathVariable Long id,
-            @RequestBody PacienteCreateDTO dto) {
+            @Valid @RequestBody PacienteCreateDTO dto) {
 
         Paciente novosDados = pacienteMapper.toEntity(dto);
-
-        if (dto.senhaHash() != null) {
-            novosDados.setSenhaHash(dto.senhaHash());
-        }
 
         Paciente pacienteAtualizado = pacienteService.update(id, novosDados);
 
