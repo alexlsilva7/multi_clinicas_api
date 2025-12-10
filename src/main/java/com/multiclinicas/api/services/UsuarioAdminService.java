@@ -4,13 +4,11 @@ import java.util.List;
 
 import com.multiclinicas.api.models.UsuarioAdmin;
 
-
 public interface UsuarioAdminService {
-    List<UsuarioAdmin> findAllByNomeContainsIgnoreCase(String nome);
+    
     List<UsuarioAdmin> findAllByClinicId(Long clinicId);
-    UsuarioAdmin findByIdAndClinicId(Long id,Long clinicId);
-
-    UsuarioAdmin findById(Long id);
+    
+    UsuarioAdmin findByIdAndClinicId(Long id, Long clinicId);
 
     UsuarioAdmin createUsuarioAdmin(Long clinicId, UsuarioAdmin usuario);
 

@@ -234,11 +234,4 @@ class UsuarioAdminServiceTest {
 
         verify(usuarioAdminRepository).delete(usuarioAdmin);
     }
-
-    @Test
-    @DisplayName("Deve lançar erro de UnsupportedOperation")
-    void shouldThrowUnsupportedExceptions() {
-        assertThrows(UnsupportedOperationException.class, () -> usuarioAdminService.findAllByNomeContainsIgnoreCase("teste"));
-        assertThrows(UnsupportedOperationException.class, () -> usuarioAdminService.findById(1L));
-    }
 }

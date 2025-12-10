@@ -86,14 +86,4 @@ public class UsuarioAdminServiceImpl implements UsuarioAdminService {
         UsuarioAdmin usuario = findByIdAndClinicId(id, clinicId);
         usuarioAdminRepository.delete(usuario);
     }
-
-    @Override
-    public List<UsuarioAdmin> findAllByNomeContainsIgnoreCase(String nome) {
-        throw new UnsupportedOperationException("Unimplemented method 'findAllByNomeContainsIgnoreCase'");
-    }
-
-    @Override
-    public UsuarioAdmin findById(Long id) {
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
-    }
 }
