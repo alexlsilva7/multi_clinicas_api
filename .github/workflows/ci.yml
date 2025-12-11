@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, feat-medico ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, feat-medico ]
+    branches: [ main ]
 
 jobs:
   test:
